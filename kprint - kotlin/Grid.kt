@@ -1,38 +1,29 @@
 package kprint
 
-import java.util.Vector
 import kotlin.system.exitProcess
 
 class Grid(_xNum : Int, _yNum : Int, _def : Char) {
     private var xSize : Int? = null
     private var ySize : Int? = null
     private var def : Char? = null
-    private var grid = Vector<Vector<Tile>>()
+    private var grid : MutableList<MutableList<Tile>> = mutableListOf()
 
     init {
         this.xSize = _xNum
         this.ySize = _yNum
         this.def = _def
-        val temp = Vector<Vector<Tile>>()
-        for (r in 0..this.ySize!!) {
-            val line = Vector<Tile>()
-            for (c in 0..this.xSize!!) {
+        for (r in 0 until this.ySize!!) {
+            val line : MutableList<Tile> = mutableListOf()
+            for (c in 0 until this.xSize!!) {
                 line.add(Tile(this.def!!))
             }
-            temp.add(line)
+            this.grid.add(line)
         }
-        //TODO find substitute for reverse "for" iteration loop
-
-        var xv : Int = temp.size - 1
-        while (true) {
-            this.grid.add(temp[xv])
-            xv -= 1
-            if (xv < 0) break
-        }
+        this.grid.reverse()
     }
     override fun toString(): String {
         val ret = StringBuilder()
-        for (vec : Vector<Tile> in this.grid) {
+        for (vec : MutableList<Tile> in this.grid) {
             for (t : Tile in vec) { ret.append(t.toString()) }
             ret.append("\n")
         }
@@ -48,7 +39,7 @@ class Grid(_xNum : Int, _yNum : Int, _def : Char) {
                 }
                 throw InvalidCoordinateException(errMessage)
             }
-            this.grid[_xCord - 1][_yCord - 1].update(_change)
+            this.grid[this.ySize!! - _yCord][_xCord - 1].update(_change)
         }
         catch (e : Exception){
             e.printStackTrace()
@@ -64,14 +55,14 @@ class Grid(_xNum : Int, _yNum : Int, _def : Char) {
                 }
                 throw InvalidCoordinateException(errMessage)
             }
-            if (_change.length > (this.xSize!!) - _xCord) {
+            if (_xCord - 1 + _change.length > this.xSize!!) {
                 throw InvalidStringSizeExeption("Message size is too large to fit within given grid space;;     @G-I2")
             }
-            var chCount = 0
+            val line: MutableList<Tile> = this.grid[this.ySize!! - _yCord]
+            var current = _xCord  - 1
             for (ch : Char in _change.toCharArray()) {
-
-                this.grid[_yCord - 1 + this.ySize!!][(_xCord - 1) + chCount].update(ch)
-                chCount += 1
+                line[current].update(ch)
+                current++
             }
         }
         catch (e : Exception) {
